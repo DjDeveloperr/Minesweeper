@@ -5,6 +5,22 @@ const PUBLIC_KEY = Deno.env.get("PUBLIC_KEY")!;
 
 slash.init({ token: TOKEN, publicKey: PUBLIC_KEY });
 
+const commands: slash.SlashCommandPartial[] = [
+  {
+    name: "minesweeper",
+    description: "Start playing Minesweeper!",
+  },
+  {
+    name: "invite",
+    description: "Invite me to your server!",
+  },
+];
+
+slash.commands.all().then((e) => {
+  console.log("Current Commands Size", e.size);
+  if (e.size !== commands.length) return slash.commands.bulkEdit(commands);
+}).catch(console.error);
+
 export enum Cell {
   None,
   One,
@@ -201,10 +217,18 @@ slash.client.on("interaction", async (d) => {
         const game = GAME.deserialize(data);
         if (String(game.user) !== d.user.id) return d.respond({ type: 6 });
         const idx = game.current;
-        if (game.cells[idx] !== Cell.None) return d.respond({ type: 6 });
+        if (
+          game.cells[idx] !== Cell.None && game.cells[idx] !== Cell.Flag &&
+          game.flag !== 1
+        ) {
+          return d.respond({ type: 6 });
+        }
         if (game.flag === 1) {
-          game.cells[idx] = Cell.Flag;
+          game.cells[idx] = game.cells[idx] === Cell.Flag
+            ? Cell.None
+            : Cell.Flag;
         } else {
+          game.cells[idx] = Math.floor(Math.random() * 3 + 1);
         }
         await d.respond({ type: 7, ...Components(game) });
       } else if (data[0] === 0x1) {
@@ -278,19 +302,3 @@ slash.handle("invite", (d) => {
 });
 
 slash.client.on("interactionError", console.error);
-
-const commands: slash.SlashCommandPartial[] = [
-  {
-    name: "minesweeper",
-    description: "Start playing Minesweeper!",
-  },
-  {
-    name: "invite",
-    description: "Invite me to your server!",
-  },
-];
-
-slash.commands.all().then((e) => {
-  console.log("Current Commands Size", e.size);
-  if (e.size !== commands.length) slash.commands.bulkEdit(commands);
-});
