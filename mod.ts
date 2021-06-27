@@ -336,3 +336,5 @@ slash.handle("invite", (d) => {
 });
 
 slash.client.on("interactionError", console.error);
+
+window.addEventListener("fetch", console.log);
