@@ -17,7 +17,6 @@ const commands: slash.SlashCommandPartial[] = [
 ];
 
 slash.commands.all().then((e) => {
-  console.log("Current Commands Size", e.size);
   if (e.size !== commands.length) return slash.commands.bulkEdit(commands);
 }).catch(console.error);
 
@@ -295,7 +294,7 @@ const INVITE =
   "https://discord.com/api/oauth2/authorize?client_id=858682973800497172&scope=applications.commands";
 
 slash.handle("invite", (d) => {
-  d.reply(
+  return d.reply(
     `• [Click here to invite.](${INVITE})\n• [Support on Ko-fi.](https://ko-fi.com/DjDeveloper)\n• [Made by DjDeveloper#7777](https://discord.com/users/422957901716652033)`,
     { ephemeral: true },
   );
