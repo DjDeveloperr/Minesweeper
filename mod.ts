@@ -291,5 +291,6 @@ const commands: slash.SlashCommandPartial[] = [
 ];
 
 slash.commands.all().then((e) => {
+  console.log("Current Commands Size", e.size);
   if (e.size !== commands.length) slash.commands.bulkEdit(commands);
 });
