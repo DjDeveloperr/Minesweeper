@@ -204,7 +204,41 @@ export function Components(game: Game): {
   };
 }
 
-slash.handle("minesweeper", (d) => {});
+slash.handle("minesweeper", async (d) => {
+  const game: Game = {
+    user: BigInt(d.user.id),
+    header: 0,
+    current: 0,
+    cells: new Uint8Array(8),
+    flag: 0,
+  };
+
+  const token = encrypt(d.token);
+  const data = new Uint8Array(1 + 1 + 8 + token.length);
+  data[0] = 1;
+  const view = new DataView(data.buffer);
+  view.setBigUint64(1 + 1, BigInt(d.user.id));
+  data.set(token, 1 + 1 + 8);
+
+  await d.reply(Components(game));
+  await d.send({
+    content: "\u200b",
+    components: [
+      {
+        type: 1,
+        components: [
+          {
+            type: 2,
+            label: "Off",
+            style: 4,
+            emoji: { name: FLAG },
+            customID: decode(data),
+          },
+        ],
+      },
+    ],
+  });
+});
 
 slash.client.on("interaction", async (d) => {
   console.log("Interaction (" + d.type + ") By " + d.user.tag, d.data);
@@ -269,7 +303,6 @@ slash.client.on("interaction", async (d) => {
 
         await d.respond({
           type: 7,
-          content: "\u200b",
           components: [
             {
               type: 1,
@@ -278,6 +311,7 @@ slash.client.on("interaction", async (d) => {
                   type: 2,
                   label: state == 0 ? "Off" : "On",
                   style: state == 0 ? 4 : 3,
+                  emoji: { name: FLAG },
                   customID: decode(data),
                 },
               ],
