@@ -1,11 +1,10 @@
 import * as slash from "./deps.ts";
 
 const TOKEN = Deno.env.get("TOKEN")!;
-const PUBLIC_KEY = Deno.env.get("PUBLIC_KEY")!;
 
 window.addEventListener("fetch", (e: any) => console.log(e.request));
 
-slash.init({ token: TOKEN, publicKey: PUBLIC_KEY });
+slash.init({ env: true });
 
 const commands: slash.SlashCommandPartial[] = [
   {
@@ -17,10 +16,6 @@ const commands: slash.SlashCommandPartial[] = [
     description: "Invite me to your server!",
   },
 ];
-
-slash.commands.all().then((e) => {
-  if (e.size !== commands.length) return slash.commands.bulkEdit(commands);
-}).catch(console.error);
 
 export enum Cell {
   None,
@@ -338,3 +333,7 @@ slash.handle("invite", (d) => {
 });
 
 slash.client.on("interactionError", console.error);
+
+slash.commands.all().then((e) => {
+  if (e.size !== commands.length) return slash.commands.bulkEdit(commands);
+}).catch(console.error);
