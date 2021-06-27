@@ -267,8 +267,14 @@ slash.client.on("interaction", async (d) => {
   }
 });
 
+const INVITE =
+  "https://discord.com/api/oauth2/authorize?client_id=858682973800497172&scope=applications.commands";
+
 slash.handle("invite", (d) => {
-  d.reply("No invite for now :(", { ephemeral: true });
+  d.reply(
+    `• [Click here to invite.](${INVITE})\n• [Support on Ko-fi.](https://ko-fi.com/DjDeveloper)\n• [Made by DjDeveloper#7777](https://discord.com/users/422957901716652033)`,
+    { ephemeral: true },
+  );
 });
 
 slash.client.on("interactionError", console.error);
