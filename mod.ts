@@ -3,7 +3,7 @@ import * as slash from "./deps.ts";
 const TOKEN = Deno.env.get("TOKEN")!;
 const PUBLIC_KEY = Deno.env.get("PUBLIC_KEY")!;
 
-window.addEventListener("fetch", console.log);
+window.addEventListener("fetch", (e: any) => console.log(e.request));
 
 slash.init({ token: TOKEN, publicKey: PUBLIC_KEY });
 
