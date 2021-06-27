@@ -266,3 +266,24 @@ slash.client.on("interaction", async (d) => {
     console.error(e);
   }
 });
+
+slash.handle("invite", (d) => {
+  d.reply("No invite for now :(", { ephemeral: true });
+});
+
+slash.client.on("interactionError", console.error);
+
+const commands: slash.SlashCommandPartial[] = [
+  {
+    name: "minesweeper",
+    description: "Start playing Minesweeper!",
+  },
+  {
+    name: "invite",
+    description: "Invite me to your server!",
+  },
+];
+
+slash.commands.all().then((e) => {
+  if (e.size !== commands.length) slash.commands.bulkEdit(commands);
+});
