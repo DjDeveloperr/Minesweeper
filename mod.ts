@@ -207,6 +207,7 @@ export function Components(game: Game): {
 slash.handle("minesweeper", (d) => {});
 
 slash.client.on("interaction", async (d) => {
+  console.log("Interaction (" + d.type + ") By " + d.user.tag, d.data);
   try {
     if (slash.isMessageComponentInteraction(d) && d.componentType === 2) {
       const data = encode(d.customID);
