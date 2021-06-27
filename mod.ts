@@ -3,6 +3,8 @@ import * as slash from "./deps.ts";
 const TOKEN = Deno.env.get("TOKEN")!;
 const PUBLIC_KEY = Deno.env.get("PUBLIC_KEY")!;
 
+window.addEventListener("fetch", console.log);
+
 slash.init({ token: TOKEN, publicKey: PUBLIC_KEY });
 
 const commands: slash.SlashCommandPartial[] = [
@@ -336,5 +338,3 @@ slash.handle("invite", (d) => {
 });
 
 slash.client.on("interactionError", console.error);
-
-window.addEventListener("fetch", console.log);
