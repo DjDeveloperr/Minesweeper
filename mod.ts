@@ -1,8 +1,7 @@
+// doesn't work
 import * as slash from "./deps.ts";
 
 const TOKEN = Deno.env.get("TOKEN")!;
-
-window.addEventListener("fetch", (e: any) => console.log(e.request));
 
 slash.init({ env: true });
 
@@ -22,6 +21,7 @@ export enum Cell {
   One,
   Two,
   Three,
+  Zero,
   Bomb,
   Flag,
 }
@@ -32,9 +32,9 @@ export enum Cell {
 // id (8*2 bytes) and token (AES encrypted)
 // of interaction in its customID.
 export interface Game {
-  header: 0; // 1 byte header. 0 = cell button, 1 = flag button (it has different layout)
-  current: number; // for cell, its index. for flag, it's current state (0 = disabled, 1 = enabled)
-  // below 3 are only present on cell. for flag its id and token bytes
+  header: 0; // 1 byte header. 0 = cell button, 1 = flag button (it has different layout), 2 = leave (kind of similar to flag)
+  current: number; // for cell, its index. for flag, it's current state (0 = disabled, 1 = enabled). for leave, its 0.
+  // below 3 are only present on cell. for flag and exit its id and token bytes
   user: bigint; // 8 bytes
   cells: Uint8Array; // 25 bytes
   flag: number; // 1 byte
@@ -48,9 +48,9 @@ export const GAME = {
     const view = new DataView(data.buffer);
 
     data[1] = game.current;
-    view.setBigUint64(0, game.user);
-    data.set(game.cells, 8);
-    view.setUint8(33, game.flag);
+    view.setBigUint64(2, game.user);
+    data.set(game.cells, 2 + 8);
+    view.setUint8(2 + 8 + 25, game.flag);
 
     return data;
   },
@@ -60,28 +60,30 @@ export const GAME = {
     return {
       header: view.getUint8(0) as 0,
       current: view.getUint8(1),
-      user: view.getBigUint64(1),
-      cells: data.subarray(1 + 8, 1 + 8 + 25),
-      flag: view.getUint8(1 + 8 + 25),
+      user: view.getBigUint64(2),
+      cells: data.subarray(2 + 8, 2 + 8 + 25),
+      flag: view.getUint8(2 + 8 + 25),
     };
   },
 };
 
-export function encode(str: string): Uint8Array {
-  return (Deno as any).core.encode(str);
+export function encode(str: Uint8Array): string {
+  return slash.encodeToString(str);
 }
 
-export function decode(data: Uint8Array): string {
-  return (Deno as any).core.decode(data);
+export function decode(data: string): Uint8Array {
+  return slash.decodeString(data);
 }
 
-const TOKEN_BYTES = encode(Deno.env.get("CRYPTO_KEY") ?? TOKEN);
+const TOKEN_BYTES: Uint8Array = (Deno as any).core.encode(
+  (Deno.env.get("CRYPTO_KEY") ?? TOKEN).substr(0, 32),
+);
 const iv = new Uint8Array(16);
 
 /** Encrypt Interaction token with Client Token (or CRYPTO_KEY env if present) */
 export function encrypt(token: string) {
   const cipher = new slash.Cbc(slash.Aes, TOKEN_BYTES, iv, slash.Padding.PKCS7);
-  return cipher.encrypt(encode(token));
+  return cipher.encrypt((Deno as any).core.encode(token));
 }
 
 /** Decrypt Interaction token with Client Token (or CRYPTO_KEY env if present) */
@@ -92,7 +94,7 @@ export function decrypt(data: Uint8Array) {
     iv,
     slash.Padding.PKCS7,
   );
-  return decode(cipher.decrypt(data));
+  return (Deno as any).core.decode(cipher.decrypt(data));
 }
 
 export function indexToPosition(index: number): [number, number] {
@@ -115,6 +117,8 @@ export enum End {
 
 /** Checks if Game has Ended, if it did, a Win or Lose */
 export function checkEnd(game: Game): End {
+  if (game.cells.every((e) => e === Cell.None)) return End.None;
+
   for (const _ of game.cells) {
     const i = Number(_);
     const e: Cell = game.cells[i];
@@ -128,12 +132,13 @@ export function checkEnd(game: Game): End {
     const surround: Cell[] = [];
 
     // All surrounding positions
-    const arr = [
-      positionToIndex(x - 1, y),
-      positionToIndex(x + 1, y),
-      positionToIndex(x, y - 1),
-      positionToIndex(x, y + 1),
-    ];
+    const arr = [];
+
+    for (let ax = -1; ax <= 1; ax++) {
+      for (let ay = -1; ay <= 1; ay++) {
+        arr.push(positionToIndex(x + ax, y + ay));
+      }
+    }
 
     let addedRevealedLength = 0;
     for (const e of arr) {
@@ -164,9 +169,9 @@ export function Components(game: Game): {
 } {
   const end = checkEnd(game);
 
+  const data = GAME.serialize(game);
   const components = slash.chunkArray(
     [...game.cells].map((e: Cell, i) => {
-      const data = GAME.serialize(game);
       data[1] = i;
       return ({
         type: 2,
@@ -178,8 +183,11 @@ export function Components(game: Game): {
           ? "2"
           : e === Cell.Three
           ? "3"
+          : e === Cell.Zero
+          ? "0"
           : "",
-        style: e === Cell.One || e === Cell.Two || e === Cell.Three
+        style: e === Cell.Zero || e === Cell.One || e === Cell.Two ||
+            e === Cell.Three
           ? 1
           : e === Cell.Bomb
           ? 4
@@ -188,7 +196,7 @@ export function Components(game: Game): {
           : 2,
         emoji: e === Cell.Bomb ? { name: BOMB }
         : e === Cell.Flag ? { name: FLAG } : undefined,
-        customID: decode(data),
+        customID: encode(data),
         disabled: end === End.None ? false : true,
       });
     }),
@@ -206,11 +214,12 @@ slash.handle("minesweeper", async (d) => {
     user: BigInt(d.user.id),
     header: 0,
     current: 0,
-    cells: new Uint8Array(8),
+    cells: new Uint8Array(25),
     flag: 0,
   };
 
   const token = encrypt(d.token);
+  console.log("encrypted token", token);
   const data = new Uint8Array(1 + 1 + 8 + token.length);
   data[0] = 1;
   const view = new DataView(data.buffer);
@@ -229,7 +238,7 @@ slash.handle("minesweeper", async (d) => {
             label: "Off",
             style: 4,
             emoji: { name: FLAG },
-            customID: decode(data),
+            customID: encode(data),
           },
         ],
       },
@@ -240,12 +249,15 @@ slash.handle("minesweeper", async (d) => {
 slash.client.on("interaction", async (d) => {
   console.log("Interaction (" + d.type + ") By " + d.user.tag, d.data);
   try {
+    console.log(d.type, (d as any).componentType);
     if (slash.isMessageComponentInteraction(d) && d.componentType === 2) {
-      const data = encode(d.customID);
+      const data = decode(d.customID);
+      console.log("Custom ID Data", data);
 
       if (data[0] === 0x0) {
         // header is cell button
         const game = GAME.deserialize(data);
+        console.log("Game", game);
         if (String(game.user) !== d.user.id) return d.respond({ type: 6 });
         const idx = game.current;
         if (
@@ -259,7 +271,7 @@ slash.client.on("interaction", async (d) => {
             ? Cell.None
             : Cell.Flag;
         } else {
-          game.cells[idx] = Math.floor(Math.random() * 3 + 1);
+          game.cells[idx] = Math.floor(Math.random() * 4 + 1);
         }
         await d.respond({ type: 7, ...Components(game) });
       } else if (data[0] === 0x1) {
@@ -284,9 +296,9 @@ slash.client.on("interaction", async (d) => {
           e.components = e.components.map((e) => {
             if (!e.components) return e;
             e.components = e.components.map((e) => {
-              const data = encode(e.custom_id!);
+              const data = decode(e.custom_id!);
               data[1 + 8 + 25] = state;
-              e.custom_id = decode(data);
+              e.custom_id = encode(data);
               return e;
             });
             return e;
@@ -296,7 +308,7 @@ slash.client.on("interaction", async (d) => {
             `/webhooks/${d.applicationID}/${token}/messages/@original`,
             { data: { components: e.components } },
           );
-        }).catch(() => {});
+        }).catch(() => console.error);
 
         await d.respond({
           type: 7,
@@ -309,7 +321,7 @@ slash.client.on("interaction", async (d) => {
                   label: state == 0 ? "Off" : "On",
                   style: state == 0 ? 4 : 3,
                   emoji: { name: FLAG },
-                  customID: decode(data),
+                  customID: encode(data),
                 },
               ],
             },
@@ -327,7 +339,7 @@ const INVITE =
 
 slash.handle("invite", (d) => {
   return d.reply(
-    `• [Click here to invite.](${INVITE})\n• [Support on Ko-fi.](https://ko-fi.com/DjDeveloper)\n• [Made by DjDeveloper#7777](https://discord.com/users/422957901716652033)`,
+    `• [Click here to invite.](<${INVITE}>)\n• [Support on Ko-fi.](<https://ko-fi.com/DjDeveloper>)\n• [Made by DjDeveloper#7777](<https://discord.com/users/422957901716652033>)`,
     { ephemeral: true },
   );
 });
