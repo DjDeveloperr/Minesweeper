@@ -26,8 +26,9 @@ export class Minesweeper {
   #dataView: DataView;
   map: Uint8Array;
 
+  /** Returns Deserializable Data */
   get data() {
-    return this.#data;
+    return this.#data.slice(1);
   }
 
   get #state(): State {
@@ -82,8 +83,8 @@ export class Minesweeper {
   constructor(size: number);
   constructor(sizeOrData: number | Uint8Array) {
     if (sizeOrData instanceof Uint8Array) {
-      this.#data = sizeOrData;
-      this.#dataView = new DataView(sizeOrData);
+      this.#data = sizeOrData.slice(1);
+      this.#dataView = new DataView(this.#data);
     } else {
       const size = sizeOrData;
       this.#data = new Uint8Array(
