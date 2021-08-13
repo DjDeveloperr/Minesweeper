@@ -41,8 +41,14 @@ function GameMessage(game: Minesweeper) {
             : game.isRevealed(i)
             ? (e === 9 ? "RED" : "GREY")
             : "BLURPLE",
-          label: game.isFlagged(i) || !game.isRevealed(i) || (game.isRevealed(i) && e === 9) ? "" : e,
-          emoji: e === 9 && game.isRevealed(i) ? { name: MINE } : game.isFlagged(i)
+          label:
+            game.isFlagged(i) || !game.isRevealed(i) ||
+              (game.isRevealed(i) && e === 9)
+              ? ""
+              : e,
+          emoji: e === 9 && game.isRevealed(i)
+            ? { name: MINE }
+            : game.isFlagged(i)
             ? { name: FLAG }
             : !game.isRevealed(i)
             ? { id: "741616560061415504" }
@@ -63,8 +69,7 @@ slash.handle("minesweeper", (d) => {
 slash.handle("Toggle Flag", (d) => {
   if (
     !d.targetMessage || d.targetMessage.author.id !== slash.client.getID() ||
-    !d.targetMessage.components.length ||
-    !d.targetMessage.components[0].customID
+    !d.targetMessage.components[0].components?.[0]?.customID
   ) {
     return d.reply("You can't do it on this message!", { ephemeral: true });
   }
@@ -103,7 +108,9 @@ slash.client.on("interaction", async (d) => {
   try {
     if (d.isMessageComponent() && d.data.component_type === 2) {
       const game = new Minesweeper(slash.decodeString(d.data.custom_id));
-      if (game.user.toString() !== d.user.id) return d.reply(`${game.user}, ${d.user.id}`);
+      if (game.user.toString() !== d.user.id) {
+        return d.reply(`${game.user}, ${d.user.id}`);
+      }
       try {
         game.click(game.data[game.data.length - 1]);
       } catch (e) {
@@ -116,8 +123,8 @@ slash.client.on("interaction", async (d) => {
   }
 });
 
-const INVITE =
-  "https://discord.com/api/oauth2/authorize?client_id="+slash.client.getID()+"&scope=applications.commands";
+const INVITE = "https://discord.com/api/oauth2/authorize?client_id=" +
+  slash.client.getID() + "&scope=applications.commands";
 
 slash.handle("invite", (d) => {
   return d.reply(
