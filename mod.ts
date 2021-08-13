@@ -80,7 +80,7 @@ slash.handle("Toggle Flag", (d) => {
     ),
   );
   if (d.user.id !== game.user.toString()) {
-    return d.reply("nope", { ephemeral: true });
+    return d.reply("Nope", { ephemeral: true });
   }
 
   const components = d.targetMessage.components.map((e) => {
