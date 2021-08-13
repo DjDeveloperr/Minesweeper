@@ -44,7 +44,7 @@ function GameMessage(game: Minesweeper) {
           label: game.isFlagged(i) || !game.isRevealed(i) ||
               (game.isRevealed(i) && e === 9)
             ? ""
-            : e,
+            : e.toString(),
           emoji: e === 9 && game.isRevealed(i)
             ? { name: MINE }
             : game.isFlagged(i)
@@ -88,25 +88,15 @@ slash.handle("Toggle Flag", async (d) => {
     return d.reply("Nope", { ephemeral: true });
   }
 
-  const components = comps.map((e) => {
-    if (e.components) {
-      e.components = e.components.map((e) => {
-        const game = new Minesweeper(slash.decodeString(e.custom_id!));
-        game.flag = !game.flag;
-        e.custom_id = slash.encodeToString(game.data);
-        delete (e as any).hash;
-        return e;
-      });
-    }
-    return e;
-  });
-
   await d.defer(true);
+
+  const { content, components } = GameMessage(game);
 
   return slash.client.rest.endpoints.editMessage(
     d.data.resolved?.messages?.[d.targetMessage.id].channel_id!,
     d.targetMessage.id,
     {
+      content,
       components: slash.transformComponent(components),
     },
   ).then(() => d.editResponse("Toggled flag!")).catch((e) =>

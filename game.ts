@@ -40,7 +40,7 @@ export class Minesweeper {
   }
 
   get flag(): boolean {
-    return this.#dataView.getUint8(9) === 1;
+    return Boolean(this.#dataView.getUint8(9));
   }
 
   set flag(flag: boolean) {
@@ -80,7 +80,7 @@ export class Minesweeper {
   }
 
   get user(): bigint {
-    return this.#dataView.getBigInt64(0);
+    return this.#dataView.getBigUint64(0);
   }
 
   constructor(data: Uint8Array);
@@ -92,17 +92,17 @@ export class Minesweeper {
     } else {
       const size = sizeOrData;
       this.#data = new Uint8Array(
-        8 + // user (snowflake bigint)
+        8 + // user (snowflake u64) offset 0
           1 + // state (u8) offset 8
           1 + // flag enabled (u8) offset 9
           1 + // size (u8) offset 10
           4 + // flagged (u32) offset 11
           4 + // revealed (u32) offset 15
-          (size ** 2), // map (n bytes) offset 11
+          (size ** 2), // map (n bytes) offset 19
       );
 
       this.#dataView = new DataView(this.#data.buffer);
-      this.#dataView.setBigInt64(0, user!);
+      this.#dataView.setBigUint64(0, user!);
       this.#dataView.setUint8(10, size);
     }
 
