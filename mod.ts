@@ -66,6 +66,7 @@ slash.handle("minesweeper", (d) => {
 });
 
 slash.handle("Toggle Flag", (d) => {
+  console.log("toggle flag cmd");
   try { if (
     !d.targetMessage || d.targetMessage.author.id !== slash.client.getID() ||
     !d.targetMessage.components[0].components?.[0]?.customID
@@ -105,7 +106,7 @@ slash.handle("Toggle Flag", (d) => {
       components: slash.transformComponent(components),
     },
   ).catch(() => {}); } catch(e) {
-    return d.reply(e.stack, { ephemeral: true })
+    return d.reply(e.stack, { ephemeral: true });
   }
 }, "MESSAGE");
 
