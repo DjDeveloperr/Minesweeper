@@ -66,25 +66,23 @@ slash.handle("minesweeper", (d) => {
 });
 
 slash.handle("Toggle Flag", (d) => {
-  console.log("toggle flag cmd");
-  try { if (
+  if (
     !d.targetMessage || d.targetMessage.author.id !== slash.client.getID() ||
     !d.targetMessage.components[0].components?.[0]?.customID
   ) {
-    console.log("invalid msg");
+    console.log("invalid msg", d.targetMessage, d.targetMessage?.components);
     return d.reply(
       "You can't do it on this message! " + d.targetMessage?.author.id + ", " +
         slash.client.getID() + ", " + Deno.inspect(d.targetMessage?.components),
       { ephemeral: true },
     );
-  } else console.log("valid msg");
+  }
 
   const game = new Minesweeper(
     slash.decodeString(
       d.targetMessage.components[0].components?.[0]?.customID!,
     ),
   );
-  console.log("valid game", game.data);
 
   if (d.user.id !== game.user.toString()) {
     return d.reply("Nope", { ephemeral: true });
@@ -102,17 +100,13 @@ slash.handle("Toggle Flag", (d) => {
     return e;
   });
 
-  console.log("modified components", components);
-
   return slash.client.rest.endpoints.editMessage(
     d.targetMessage.channelID,
     d.targetMessage.id,
     {
       components: slash.transformComponent(components),
     },
-  ).catch(() => {}); } catch(e) {
-    return d.reply(e.stack, { ephemeral: true });
-  }
+  ).catch(() => {});
 }, "MESSAGE");
 
 slash.client.on("interaction", async (d) => {
