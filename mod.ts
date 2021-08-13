@@ -1,8 +1,8 @@
 import {
   client,
   commands as slashCommands,
-  decodeString,
-  encodeToString,
+  decode,
+  encode,
   handle,
   init,
   MessageComponentData,
@@ -32,7 +32,18 @@ const commands: SlashCommandPartial[] = [
 const MINE = "💣";
 const FLAG = "🚩";
 
-export function chunkArray<T>(arr: T[], perChunk: number): T[][] {
+const decoder = new TextDecoder();
+const encoder = new TextEncoder();
+
+function decodeString(hex: string) {
+  return decode(encoder.encode(hex));
+}
+
+function encodeToString(data: Uint8Array) {
+  return decoder.decode(encode(data))
+}
+
+function chunkArray<T>(arr: T[], perChunk: number): T[][] {
   return arr.reduce((resultArray: T[][], item, index) => {
     const chunkIndex = Math.floor(index / perChunk);
 
