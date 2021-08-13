@@ -31,7 +31,7 @@ function GameMessage(game: Minesweeper) {
       : game.state === State.Win
       ? `Game has ended, <@${game.user}> won!`
       : `${FLAG} **Flag:** ${game.flag ? "On" : "Off"}\n`,
-    components: slash.chunkArray([...game.map], 5).map((e) =>
+    components: slash.chunkArray([...game.map], game.size).map((e) =>
       <MessageComponentData> ({
         type: 1,
         components: e.map((e) => (<MessageComponentData> {
@@ -96,7 +96,7 @@ slash.handle("Toggle Flag", (d) => {
     {
       components: slash.transformComponent(components),
     },
-  ); // .catch(() => {});
+  ).catch(() => {});
 }, "MESSAGE");
 
 slash.client.on("interaction", async (d) => {
