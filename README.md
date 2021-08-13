@@ -1,4 +1,4 @@
-# Minesweeper
+# Minesweeper Bot
 
 This is yet another Minesweeper but using Buttons (and the new Context Menu
 commands :eyes:), but something is different -- it's completely serverless!
@@ -8,6 +8,9 @@ Complete state is stored in `custom_id` of Button message component and all
 You can invite it
 [here](https://discord.com/api/oauth2/authorize?client_id=874879655511982110&scope=applications.commands+bot&permissions=2048).
 
+Original idea from [moosh#3874](https://discord.com/users/485605533227679756)'s
+amazing Mini-sweeper bot :3
+
 ## Deploy it!
 
 Want your own instance of bot? It's easy, navigate to
@@ -16,7 +19,7 @@ and fill out `PUBLIC_KEY` and `TOKEN` then deploy! You'll have a link in the end
 (ends with `.deno.dev`) which you can set as Interactions Endpoint URL in
 Developer Portal.
 
-## But, why bot scope?
+### But why bot scope?
 
 Discord doesn't provide us with any way to edit message in response to a Context
 Menu command (it would be nice if they allowed type 7 UPDATE_MESSAGE with type 3

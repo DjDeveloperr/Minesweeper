@@ -167,7 +167,7 @@ const INVITE = "https://discord.com/api/oauth2/authorize?client_id=" +
 
 handle("invite", (d) => {
   return d.reply(
-    `• [Click here to invite.](<${INVITE}>)\n• [Support on Ko-fi.](<https://ko-fi.com/DjDeveloper>)\n• [Made by DjDeveloper#7777](<https://discord.com/users/422957901716652033>)`,
+    `• [Click here to invite.](<${INVITE}>)\n• [Support on Ko-fi.](<https://ko-fi.com/DjDeveloper>)\n• [Check out the Source](https://github.com/DjDeveloperr/Minesweeper)\n• [Made by DjDeveloper#7777](<https://discord.com/users/422957901716652033>)`,
     { ephemeral: true },
   );
 });
