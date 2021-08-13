@@ -68,7 +68,7 @@ slash.handle("minesweeper", (d) => {
 
 slash.handle("Toggle Flag", (d) => {
   if (
-    !d.targetMessage || d.targetMessage.author.id !== slash.client.getID() ||
+    !d.targetMessage || d.targetMessage.author.id !== "874879655511982110" ||
     !d.targetMessage.components[0].components?.[0]?.customID
   ) {
     return d.reply("You can't do it on this message!", { ephemeral: true });
@@ -123,8 +123,7 @@ slash.client.on("interaction", async (d) => {
   }
 });
 
-const INVITE = "https://discord.com/api/oauth2/authorize?client_id=" +
-  slash.client.getID() + "&scope=applications.commands";
+const INVITE = "https://discord.com/api/oauth2/authorize?client_id=874879655511982110&scope=applications.commands";
 
 slash.handle("invite", (d) => {
   return d.reply(
