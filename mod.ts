@@ -1,5 +1,5 @@
 import * as slash from "./deps.ts";
-import { MessageComponentData } from "./deps.ts";
+import { MessageComponentData, MessageComponentPayload } from "./deps.ts";
 import { Minesweeper, State } from "./game.ts";
 
 slash.init({ env: true });
@@ -66,21 +66,20 @@ slash.handle("minesweeper", (d) => {
 });
 
 slash.handle("Toggle Flag", (d) => {
+  const comps = d.targetMessage?.components as unknown as MessageComponentPayload[] ?? [];
   if (
     !d.targetMessage || d.targetMessage.author.id !== slash.client.getID() ||
-    !d.targetMessage.components[0].components?.[0]?.customID
+    !comps[0].components?.[0]?.custom_id
   ) {
-    console.log("invalid msg", d.targetMessage?.components);
     return d.reply(
-      "You can't do it on this message! " + d.targetMessage?.author.id + ", " +
-        slash.client.getID() + ", " + Deno.inspect(d.targetMessage?.components),
+      "You can't do it on this message!",
       { ephemeral: true },
     );
   }
 
   const game = new Minesweeper(
     slash.decodeString(
-      d.targetMessage.components[0].components?.[0]?.customID!,
+      comps[0].components?.[0]?.custom_id!,
     ),
   );
 
@@ -88,12 +87,13 @@ slash.handle("Toggle Flag", (d) => {
     return d.reply("Nope", { ephemeral: true });
   }
 
-  const components = d.targetMessage.components.map((e) => {
+  const components = comps.map((e) => {
     if (e.components) {
       e.components = e.components.map((e) => {
-        const game = new Minesweeper(slash.decodeString(e.customID!));
+        const game = new Minesweeper(slash.decodeString(e.custom_id!));
         game.flag = !game.flag;
-        e.customID = slash.encodeToString(game.data);
+        e.custom_id = slash.encodeToString(game.data);
+        delete (e as any).hash;
         return e;
       });
     }
