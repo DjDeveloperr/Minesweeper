@@ -75,7 +75,7 @@ slash.handle("Toggle Flag", (d) => {
   }
 
   const game = new Minesweeper(
-    slash.encode(
+    slash.decodeString(
       d.targetMessage.components[0].components?.[0]?.customID!,
     ),
   );
