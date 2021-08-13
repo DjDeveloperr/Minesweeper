@@ -8,4 +8,4 @@ export { transformComponent } from "https://raw.githubusercontent.com/DjDevelope
 export {
   decodeString,
   encodeToString,
-} from "https://deno.land/std@0.104.0/encoding/hex.ts";
+} from "https://deno.land/std@0.99.0/encoding/hex.ts";
