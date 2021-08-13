@@ -88,7 +88,7 @@ export class Minesweeper {
   constructor(sizeOrData: number | Uint8Array, user?: bigint) {
     if (sizeOrData instanceof Uint8Array) {
       this.#data = sizeOrData.slice(1);
-      this.#dataView = new DataView(this.#data);
+      this.#dataView = new DataView(this.#data.buffer);
     } else {
       const size = sizeOrData;
       this.#data = new Uint8Array(
