@@ -1,9 +1,5 @@
-export * from "https://raw.githubusercontent.com/DjDeveloperr/harmony/ctx-menu/deploy.ts";
-export type {
-  MessageComponentData,
-  MessageComponentType,
-} from "https://raw.githubusercontent.com/DjDeveloperr/harmony/ctx-menu/src/types/messageComponents.ts";
-export { transformComponent } from "https://raw.githubusercontent.com/DjDeveloperr/harmony/ctx-menu/src/utils/components.ts";
+export * from "https://code.harmony.rocks/ctx-menu@dj/deploy";
+export { transformComponent } from "https://code.harmony.rocks/ctx-menu@dj/src/utils/components.ts";
 export {
   decodeString,
   encodeToString,
