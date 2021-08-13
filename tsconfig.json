@@ -1,7 +1,0 @@
-{
-  "compilerOptions": {
-    "jsxFactory": "BotUI.createElement",
-    "jsxFragmentFactory": "fragment",
-    "jsx": "react"
-  }
-}
