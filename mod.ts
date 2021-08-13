@@ -1,5 +1,5 @@
 import * as slash from "./deps.ts";
-import { MessageComponentData, MessageComponentPayload } from "./deps.ts";
+import { MessageComponentData, MessageComponentPayload, MessagePayload } from "./deps.ts";
 import { Minesweeper, State } from "./game.ts";
 
 slash.init({ env: true });
@@ -71,10 +71,13 @@ slash.handle("minesweeper", (d) => {
 });
 
 slash.handle("Toggle Flag", async (d) => {
-  const comps =
-    d.targetMessage?.components as unknown as MessageComponentPayload[] ?? [];
+  if (!d.targetMessage) return;
+  // resolved fields are not serialized to Message in serverless environment
+  const targetMessage = d.targetMessage as unknown as MessagePayload;
+  const comps = targetMessage.components ?? [];
+
   if (
-    !d.targetMessage || d.targetMessage.author.id !== slash.client.getID() ||
+    d.targetMessage.author.id !== slash.client.getID() ||
     !comps[0].components?.[0]?.custom_id
   ) {
     return d.reply(
