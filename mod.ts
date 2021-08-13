@@ -41,11 +41,10 @@ function GameMessage(game: Minesweeper) {
             : game.isRevealed(i)
             ? (e === 9 ? "RED" : "GREY")
             : "BLURPLE",
-          label:
-            game.isFlagged(i) || !game.isRevealed(i) ||
+          label: game.isFlagged(i) || !game.isRevealed(i) ||
               (game.isRevealed(i) && e === 9)
-              ? ""
-              : e,
+            ? ""
+            : e,
           emoji: e === 9 && game.isRevealed(i)
             ? { name: MINE }
             : game.isFlagged(i)
@@ -71,7 +70,13 @@ slash.handle("Toggle Flag", (d) => {
     !d.targetMessage || d.targetMessage.author.id !== slash.client.getID() ||
     !d.targetMessage.components[0].components?.[0]?.customID
   ) {
-    return d.reply("You can't do it on this message! " + d.targetMessage?.author.id + ", " + slash.client.getID() + ", " + Deno.inspect(d.targetMessage?.components), { ephemeral: true });
+    try { return d.reply(
+      "You can't do it on this message! " + d.targetMessage?.author.id + ", " +
+        slash.client.getID() + ", " + Deno.inspect(d.targetMessage?.components),
+      { ephemeral: true },
+    ); } catch(e) {
+      return d.reply(e.stack, { ephemeral: true })
+    }
   }
 
   const game = new Minesweeper(
