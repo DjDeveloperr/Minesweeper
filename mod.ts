@@ -1,4 +1,6 @@
 import * as slash from "./deps.ts";
+import { MessageComponentData } from "./deps.ts";
+import { Minesweeper, State } from "./game.ts";
 
 slash.init({ env: true });
 
@@ -13,24 +15,102 @@ const commands: slash.SlashCommandPartial[] = [
   },
   {
     name: "Toggle Flag",
-    type: 3,
-  } as unknown as slash.SlashCommandPartial, // sorry typescript but shut up
-  {
-    name: "Leave Game",
-    type: 3,
-  } as unknown as slash.SlashCommandPartial,
+    type: "MESSAGE",
+  },
 ];
+
+const MINE = "💣";
+const FLAG = "🚩";
+
+function GameMessage(game: Minesweeper) {
+  let i = -1;
+
+  return {
+    content: game.state === State.Lose
+      ? `Game has ended, <@${game.user}> lost!`
+      : game.state === State.Win
+      ? `Game has ended, <@${game.user}> won!`
+      : `${FLAG} **Flag:** ${game.flag ? "On" : "Off"}\n`,
+    components: slash.chunkArray([...game.map], 5).map((e) =>
+      <MessageComponentData> ({
+        type: 1,
+        components: e.map((e) => (<MessageComponentData> {
+          type: 2,
+          style: game.isFlagged(++i)
+            ? "GREEN"
+            : game.isRevealed(i)
+            ? (e === 9 ? "RED" : "GREY")
+            : "BLURPLE",
+          label: game.isFlagged(i) || !game.isRevealed(i) || e === 9 ? "" : e,
+          emoji: e === 9 ? { name: MINE } : game.isFlagged(i)
+            ? { name: FLAG }
+            : !game.isRevealed(i)
+            ? { id: "741616560061415504" }
+            : undefined,
+          disabled: game.isRevealed(i),
+          customID: slash.encodeToString(new Uint8Array([...game.data, i])),
+        })),
+      })
+    ),
+    allowedMentions: { parse: [] },
+  };
+}
+
+slash.handle("minesweeper", (d) => {
+  const game = new Minesweeper(5, BigInt(d.user.id));
+  return d.reply(GameMessage(game));
+});
+
+slash.handle("Toggle Flag", (d) => {
+  if (
+    !d.targetMessage || d.targetMessage.author.id !== slash.client.getID() ||
+    !d.targetMessage.components.length ||
+    !d.targetMessage.components[0].customID
+  ) {
+    return;
+  }
+
+  const game = new Minesweeper(
+    slash.decodeString(
+      d.targetMessage.components[0].components?.[0]?.customID!,
+    ),
+  );
+  if (d.user.id !== game.user.toString()) {
+    return d.reply("nope", { ephemeral: true });
+  }
+
+  const components = d.targetMessage.components.map((e) => {
+    if (e.components) {
+      e.components = e.components.map((e) => {
+        const game = new Minesweeper(slash.decodeString(e.customID!));
+        game.flag = !game.flag;
+        e.customID = slash.encodeToString(game.data);
+        return e;
+      });
+    }
+    return e;
+  });
+
+  return slash.client.rest.endpoints.editMessage(
+    d.targetMessage.channelID,
+    d.targetMessage.id,
+    {
+      components: slash.transformComponent(components),
+    },
+  ); // .catch(() => {});
+}, "MESSAGE");
 
 slash.client.on("interaction", async (d) => {
   try {
-    if (d.isMessageComponent()) {
-      if (d.componentType === 2) {
-
-      }
-    } else if (d.isSlashCommand() && (d.data as any).target_id) {
-      const msg = (d.resolved as any).messages[(d.data as any).target_id];
+    if (d.isMessageComponent() && d.componentType === 2) {
+      const game = new Minesweeper(slash.decodeString(d.customID));
+      if (game.user.toString() !== d.user.id) return d.respond({ type: 7 });
+      try {
+        game.click(game.data[game.data.length - 1]);
+      } catch (e) {}
+      return d.respond({ type: 6, ...GameMessage(game) });
     }
-  } catch(e) {
+  } catch (e) {
     console.error("Error at interaction event:", e);
   }
 });

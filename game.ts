@@ -28,43 +28,43 @@ export class Minesweeper {
 
   /** Returns Deserializable Data */
   get data() {
-    return this.#data.slice(1);
+    return this.#data.slice(0);
   }
 
   get #state(): State {
-    return this.#dataView.getUint8(0);
+    return this.#dataView.getUint8(8);
   }
 
   set #state(state: State) {
-    this.#dataView.setUint8(0, state);
+    this.#dataView.setUint8(8, state);
   }
 
   get flag(): boolean {
-    return this.#dataView.getUint8(1) === 1;
+    return this.#dataView.getUint8(9) === 1;
   }
 
   set flag(flag: boolean) {
-    this.#dataView.setUint8(1, Number(flag));
+    this.#dataView.setUint8(9, Number(flag));
   }
 
   get #revealed() {
-    return this.#dataView.getUint32(3);
+    return this.#dataView.getUint32(11);
   }
 
   set #revealed(value: number) {
-    this.#dataView.setUint32(3, value);
+    this.#dataView.setUint32(11, value);
   }
 
   get #flagged() {
-    return this.#dataView.getUint32(7);
+    return this.#dataView.getUint32(15);
   }
 
   set #flagged(value: number) {
-    this.#dataView.setUint32(7, value);
+    this.#dataView.setUint32(15, value);
   }
 
   get size() {
-    return this.#dataView.getUint8(2);
+    return this.#dataView.getUint8(10);
   }
 
   get revealed() {
@@ -79,16 +79,21 @@ export class Minesweeper {
     return this.#state;
   }
 
+  get user(): bigint {
+    return this.#dataView.getBigUint64(0);
+  }
+
   constructor(data: Uint8Array);
-  constructor(size: number);
-  constructor(sizeOrData: number | Uint8Array) {
+  constructor(size: number, user: bigint);
+  constructor(sizeOrData: number | Uint8Array, user?: bigint) {
     if (sizeOrData instanceof Uint8Array) {
       this.#data = sizeOrData.slice(1);
       this.#dataView = new DataView(this.#data);
     } else {
       const size = sizeOrData;
       this.#data = new Uint8Array(
-        1 + // state (u8) offset 0
+        8 + // user (snowflake bigint)
+          1 + // state (u8) offset 0
           1 + // flag enabled (u8) offset 1
           1 + // size (u8) offset 2
           4 + // flagged (u32) offset 3
@@ -97,11 +102,11 @@ export class Minesweeper {
       );
 
       this.#dataView = new DataView(this.#data.buffer);
-      this.#dataView.setUint32(4, 0);
-      this.#dataView.setUint8(2, size);
+      this.#dataView.setUint32(12, 0);
+      this.#dataView.setUint8(10, size);
     }
 
-    this.map = new Uint8Array(this.#data.buffer, 11, this.size ** 2);
+    this.map = new Uint8Array(this.#data.buffer, 19, this.size ** 2);
 
     if (typeof sizeOrData === "number") this.#setupMap();
   }

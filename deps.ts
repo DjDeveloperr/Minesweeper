@@ -1,6 +1,10 @@
-export * from "https://code.harmony.rocks/v2.0.0/deploy.ts";
+export * from "https://raw.githubusercontent.com/DjDeveloperr/harmony/ctx-menu/deploy.ts";
 export { chunkArray } from "https://crux.land/chunk@1.0.0";
-export type { MessageComponentData, MessageComponentType } from "https://code.harmony.rocks/v2.0.0/src/types/messageComponents.ts";
+export type {
+  MessageComponentData,
+  MessageComponentType,
+} from "https://raw.githubusercontent.com/DjDeveloperr/harmony/ctx-menu/src/types/messageComponents.ts";
+export { transformComponent } from "https://raw.githubusercontent.com/DjDeveloperr/harmony/ctx-menu/src/utils/components.ts";
 export {
   decodeString,
   encodeToString,
