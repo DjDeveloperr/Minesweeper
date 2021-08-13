@@ -104,7 +104,7 @@ slash.handle("Toggle Flag", async (d) => {
   await d.defer(true);
 
   return slash.client.rest.endpoints.editMessage(
-    d.targetMessage.channelID,
+    d.data.resolved?.messages?.[d.targetMessage.id].channel_id!,
     d.targetMessage.id,
     {
       components: slash.transformComponent(components),
