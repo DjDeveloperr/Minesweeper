@@ -117,7 +117,7 @@ slash.client.on("interaction", async (d) => {
 });
 
 const INVITE =
-  "https://discord.com/api/oauth2/authorize?client_id=874879655511982110&scope=applications.commands";
+  "https://discord.com/api/oauth2/authorize?client_id="+slash.client.getID()+"&scope=applications.commands";
 
 slash.handle("invite", (d) => {
   return d.reply(

@@ -1,5 +1,2 @@
-/.vscode
-/deploy.bat
-/run.bat
-/local.bat
+.vscode/
 /config.ts
