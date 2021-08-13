@@ -108,7 +108,7 @@ slash.client.on("interaction", async (d) => {
         game.click(game.data[game.data.length - 1]);
       } catch (e) {}
       return d.respond({ type: 6, ...GameMessage(game) });
-    } else return d.reply("nope " + d.isMessageComponent() + ", " + (d as any).componentType, { ephemeral: true });
+    } else return d.reply("nope " + d.isMessageComponent() + ", " + (d as any).componentType + ", " + Deno.inspect(d.data) + ", " + d.constructor.name, { ephemeral: true });
   } catch (e) {
     console.error("Error at interaction event:", e);
   }
