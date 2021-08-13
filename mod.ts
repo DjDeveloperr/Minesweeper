@@ -67,7 +67,7 @@ slash.handle("Toggle Flag", (d) => {
     !d.targetMessage.components.length ||
     !d.targetMessage.components[0].customID
   ) {
-    return;
+    return d.reply("You can't do it on this message!", { ephemeral: true });
   }
 
   const game = new Minesweeper(
