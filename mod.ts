@@ -103,10 +103,12 @@ slash.client.on("interaction", async (d) => {
   try {
     if (d.isMessageComponent() && d.data.component_type === 2) {
       const game = new Minesweeper(slash.decodeString(d.data.custom_id));
-      if (game.user.toString() !== d.user.id) return d.reply(`actual ${d.user.id}, expected ${game.user}`);
+      if (game.user.toString() !== d.user.id) return d.respond({ type: 7 });
       try {
         game.click(game.data[game.data.length - 1]);
-      } catch (e) {}
+      } catch (e) {
+        console.error("game.click error", e);
+      }
       return d.respond({ type: 6, ...GameMessage(game) });
     }
   } catch (e) {
