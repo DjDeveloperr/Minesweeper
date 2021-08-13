@@ -34,29 +34,32 @@ function GameMessage(game: Minesweeper) {
     components: slash.chunkArray([...game.map], game.size).map((e) =>
       <MessageComponentData> ({
         type: 1,
-        components: e.map((e) => (<MessageComponentData> {
-          type: 2,
-          style: game.isFlagged(++i)
-            ? "GREEN"
-            : game.isRevealed(i)
-            ? (e === 9 ? "RED" : "GREY")
-            : "BLURPLE",
-          label: game.isFlagged(i) || !game.isRevealed(i) ||
-              (game.isRevealed(i) && e === 9)
-            ? ""
-            : e.toString(),
-          emoji: e === 9 && game.isRevealed(i)
-            ? { name: MINE }
-            : game.isFlagged(i)
-            ? { name: FLAG }
-            : !game.isRevealed(i)
-            ? { id: "741616560061415504" }
-            : undefined,
-          customID: slash.encodeToString(
-            new Uint8Array([...game.data.subarray(0, game.size ** 2), i]),
-          ),
-          disabled: game.state !== State.Playing,
-        })),
+        components: e.map((e) => {
+          i++;
+          return <MessageComponentData> {
+            type: 2,
+            style: game.isFlagged(i)
+              ? "GREEN"
+              : game.isRevealed(i)
+              ? (e === 9 ? "RED" : "GREY")
+              : "BLURPLE",
+            label: game.isFlagged(i) || !game.isRevealed(i) ||
+                (game.isRevealed(i) && e === 9)
+              ? ""
+              : e.toString(),
+            emoji: e === 9 && game.isRevealed(i)
+              ? { name: MINE }
+              : game.isFlagged(i)
+              ? { name: FLAG }
+              : !game.isRevealed(i)
+              ? { id: "741616560061415504" }
+              : undefined,
+            customID: slash.encodeToString(
+              new Uint8Array([...game.data.slice(0, game.size ** 2), i]),
+            ),
+            disabled: game.state !== State.Playing,
+          };
+        }),
       })
     ),
   };
