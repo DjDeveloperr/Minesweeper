@@ -52,7 +52,9 @@ function GameMessage(game: Minesweeper) {
             : !game.isRevealed(i)
             ? { id: "741616560061415504" }
             : undefined,
-          customID: slash.encodeToString(new Uint8Array([...game.data, i])),
+          customID: slash.encodeToString(
+            new Uint8Array([...game.data.subarray(0, game.size ** 2), i]),
+          ),
           disabled: game.state !== State.Playing,
         })),
       })
@@ -119,7 +121,7 @@ slash.client.on("interaction", async (d) => {
       } catch (e) {
         console.error("game.click error", e);
       }
-      
+
       return d.respond({
         type: 7,
         ...GameMessage(game),
