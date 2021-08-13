@@ -70,7 +70,7 @@ slash.handle("Toggle Flag", (d) => {
     !d.targetMessage || d.targetMessage.author.id !== slash.client.getID() ||
     !d.targetMessage.components[0].components?.[0]?.customID
   ) {
-    console.log("invalid msg", d.targetMessage, d.targetMessage?.components);
+    console.log("invalid msg", d.targetMessage?.components);
     return d.reply(
       "You can't do it on this message! " + d.targetMessage?.author.id + ", " +
         slash.client.getID() + ", " + Deno.inspect(d.targetMessage?.components),
@@ -123,8 +123,9 @@ slash.client.on("interaction", async (d) => {
       } catch (e) {
         console.error("game.click error", e);
       }
-      console.log("clicked", game.data, game.map, game.state, game.revealed, game.flagged);
-      return d.respond({ type: 6, ...GameMessage(game) });
+      const msg = GameMessage(game);
+      console.log("clicked", game.data, game.map, game.state, game.revealed, game.flagged, msg.components, msg.content);
+      return d.respond({ type: 6, content: msg.content, components: msg.components });
     }
   } catch (e) {
     console.error("Error at interaction event:", e);
