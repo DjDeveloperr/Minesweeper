@@ -111,6 +111,10 @@ export class Minesweeper {
     if (typeof sizeOrData === "number") this.#setupMap();
   }
 
+  get byteLength() {
+    return 8 + 1 + 1 + 1 + 4 + 4 + this.size ** 2
+  }
+
   #setupMap() {
     const mines = this.size; // Math.floor((90 / 100) * this.size);
     const minePositions = new Set<number>();

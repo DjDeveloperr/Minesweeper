@@ -79,7 +79,7 @@ function GameMessage(game: Minesweeper) {
               ? { id: "741616560061415504" }
               : undefined,
             customID: encodeToString(
-              new Uint8Array([...game.data.slice(0, game.size ** 2), i]),
+              new Uint8Array([...game.data.slice(0, game.byteLength), i]),
             ),
             disabled: game.state !== State.Playing,
           };
