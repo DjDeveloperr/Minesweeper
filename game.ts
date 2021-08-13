@@ -132,9 +132,10 @@ export class Minesweeper {
       }
     });
 
-    const zeroes = [...this.map].map((e, i) => ({ e, i })).filter((e) =>
-      e.e === 0
-    ).map((e) => e.i);
+    const zeroes: number[] = [];
+    this.map.forEach((e, i) => {
+      if (e === 0) zeroes.push(i);
+    });
     const rand = zeroes[Math.floor(Math.random() * zeroes.length)];
     this.#revealAdd(rand);
   }
