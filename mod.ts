@@ -66,17 +66,15 @@ slash.handle("minesweeper", (d) => {
 });
 
 slash.handle("Toggle Flag", (d) => {
-  if (
+  try { if (
     !d.targetMessage || d.targetMessage.author.id !== slash.client.getID() ||
     !d.targetMessage.components[0].components?.[0]?.customID
   ) {
-    try { return d.reply(
+    return d.reply(
       "You can't do it on this message! " + d.targetMessage?.author.id + ", " +
         slash.client.getID() + ", " + Deno.inspect(d.targetMessage?.components),
       { ephemeral: true },
-    ); } catch(e) {
-      return d.reply(e.stack, { ephemeral: true })
-    }
+    );
   }
 
   const game = new Minesweeper(
@@ -106,7 +104,9 @@ slash.handle("Toggle Flag", (d) => {
     {
       components: slash.transformComponent(components),
     },
-  ).catch(() => {});
+  ).catch(() => {}); } catch(e) {
+    return d.reply(e.stack, { ephemeral: true })
+  }
 }, "MESSAGE");
 
 slash.client.on("interaction", async (d) => {
@@ -114,13 +114,16 @@ slash.client.on("interaction", async (d) => {
     if (d.isMessageComponent() && d.data.component_type === 2) {
       const game = new Minesweeper(slash.decodeString(d.data.custom_id));
       if (game.user.toString() !== d.user.id) {
-        return d.reply(`${game.user}, ${d.user.id}`);
+        return d.respond({ type: 7 });
       }
+      const cell = game.data[game.data.length - 1];
+      console.log("click", cell);
       try {
-        game.click(game.data[game.data.length - 1]);
+        game.click(cell);
       } catch (e) {
         console.error("game.click error", e);
       }
+      console.log("clicked");
       return d.respond({ type: 6, ...GameMessage(game) });
     }
   } catch (e) {
