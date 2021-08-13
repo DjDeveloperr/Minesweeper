@@ -112,7 +112,7 @@ export class Minesweeper {
   }
 
   get byteLength() {
-    return 8 + 1 + 1 + 1 + 4 + 4 + this.size ** 2
+    return 8 + 1 + 1 + 1 + 4 + 4 + this.size ** 2;
   }
 
   #setupMap() {

@@ -163,7 +163,7 @@ client.on("interaction", async (d) => {
 });
 
 const INVITE = "https://discord.com/api/oauth2/authorize?client_id=" +
-  client.getID() + "&scope=applications.commands";
+  client.getID() + "&scope=applications.commands+bot&permissions=2048";
 
 handle("invite", (d) => {
   return d.reply(
