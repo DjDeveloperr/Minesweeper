@@ -1,10 +1,20 @@
-import * as slash from "./deps.ts";
-import { MessageComponentData, MessageComponentPayload, MessagePayload } from "./deps.ts";
+import {
+  client,
+  commands as slashCommands,
+  decodeString,
+  encodeToString,
+  handle,
+  init,
+  MessageComponentData,
+  MessagePayload,
+  SlashCommandPartial,
+  transformComponent,
+} from "./deps.ts";
 import { Minesweeper, State } from "./game.ts";
 
-slash.init({ env: true });
+init({ env: true });
 
-const commands: slash.SlashCommandPartial[] = [
+const commands: SlashCommandPartial[] = [
   {
     name: "minesweeper",
     description: "Start playing Minesweeper!",
@@ -22,6 +32,20 @@ const commands: slash.SlashCommandPartial[] = [
 const MINE = "💣";
 const FLAG = "🚩";
 
+export function chunkArray<T>(arr: T[], perChunk: number): T[][] {
+  return arr.reduce((resultArray: T[][], item, index) => {
+    const chunkIndex = Math.floor(index / perChunk);
+
+    if (!resultArray[chunkIndex]) {
+      resultArray[chunkIndex] = [];
+    }
+
+    resultArray[chunkIndex].push(item);
+
+    return resultArray;
+  }, []);
+}
+
 function GameMessage(game: Minesweeper) {
   let i = -1;
 
@@ -31,7 +55,7 @@ function GameMessage(game: Minesweeper) {
       : game.state === State.Win
       ? `Game has ended, <@${game.user}> won!`
       : `${FLAG} **Flag:** ${game.flag ? "On" : "Off"}\n`,
-    components: slash.chunkArray([...game.map], game.size).map((e) =>
+    components: chunkArray([...game.map], game.size).map((e) =>
       <MessageComponentData> ({
         type: 1,
         components: e.map((e) => {
@@ -54,7 +78,7 @@ function GameMessage(game: Minesweeper) {
               : !game.isRevealed(i)
               ? { id: "741616560061415504" }
               : undefined,
-            customID: slash.encodeToString(
+            customID: encodeToString(
               new Uint8Array([...game.data.slice(0, game.size ** 2), i]),
             ),
             disabled: game.state !== State.Playing,
@@ -65,19 +89,19 @@ function GameMessage(game: Minesweeper) {
   };
 }
 
-slash.handle("minesweeper", (d) => {
+handle("minesweeper", (d) => {
   const game = new Minesweeper(5, BigInt(d.user.id));
   return d.reply(GameMessage(game));
 });
 
-slash.handle("Toggle Flag", async (d) => {
+handle("Toggle Flag", async (d) => {
   if (!d.targetMessage) return;
   // resolved fields are not serialized to Message in serverless environment
   const targetMessage = d.targetMessage as unknown as MessagePayload;
   const comps = targetMessage.components ?? [];
 
   if (
-    d.targetMessage.author.id !== slash.client.getID() ||
+    d.targetMessage.author.id !== client.getID() ||
     !comps[0].components?.[0]?.custom_id
   ) {
     return d.reply(
@@ -87,7 +111,7 @@ slash.handle("Toggle Flag", async (d) => {
   }
 
   const game = new Minesweeper(
-    slash.decodeString(
+    decodeString(
       comps[0].components?.[0]?.custom_id!,
     ),
   );
@@ -102,22 +126,22 @@ slash.handle("Toggle Flag", async (d) => {
 
   const { content, components } = GameMessage(game);
 
-  return slash.client.rest.endpoints.editMessage(
+  return client.rest.endpoints.editMessage(
     d.data.resolved?.messages?.[d.targetMessage.id].channel_id!,
     d.targetMessage.id,
     {
       content,
-      components: slash.transformComponent(components),
+      components: transformComponent(components),
     },
   ).then(() => d.editResponse("Toggled flag!")).catch((e) =>
     d.editResponse(("Failed to toggle flag! " + e).substr(0, 2000))
   );
 }, "MESSAGE");
 
-slash.client.on("interaction", async (d) => {
+client.on("interaction", async (d) => {
   try {
     if (d.isMessageComponent() && d.data.component_type === 2) {
-      const game = new Minesweeper(slash.decodeString(d.data.custom_id));
+      const game = new Minesweeper(decodeString(d.data.custom_id));
       if (game.user.toString() !== d.user.id) {
         return d.respond({ type: 6 });
       }
@@ -139,17 +163,17 @@ slash.client.on("interaction", async (d) => {
 });
 
 const INVITE = "https://discord.com/api/oauth2/authorize?client_id=" +
-  slash.client.getID() + "&scope=applications.commands";
+  client.getID() + "&scope=applications.commands";
 
-slash.handle("invite", (d) => {
+handle("invite", (d) => {
   return d.reply(
     `• [Click here to invite.](<${INVITE}>)\n• [Support on Ko-fi.](<https://ko-fi.com/DjDeveloper>)\n• [Made by DjDeveloper#7777](<https://discord.com/users/422957901716652033>)`,
     { ephemeral: true },
   );
 });
 
-slash.client.on("interactionError", console.error);
+client.on("interactionError", console.error);
 
-slash.commands.all().then((e) => {
-  if (e.size !== commands.length) return slash.commands.bulkEdit(commands);
+slashCommands.all().then((e) => {
+  if (e.size !== commands.length) return slashCommands.bulkEdit(commands);
 }).catch(console.error);
