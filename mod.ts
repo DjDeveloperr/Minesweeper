@@ -102,7 +102,7 @@ slash.handle("Toggle Flag", async (d) => {
       components: slash.transformComponent(components),
     },
   ).then(() => d.editResponse("Toggled flag!")).catch((e) =>
-    d.editResponse("Failed to toggle flag! " + e)
+    d.editResponse(("Failed to toggle flag! " + e).substr(0, 2000))
   );
 }, "MESSAGE");
 
