@@ -53,10 +53,10 @@ function GameMessage(game: Minesweeper) {
             ? { id: "741616560061415504" }
             : undefined,
           customID: slash.encodeToString(new Uint8Array([...game.data, i])),
+          disabled: game.state !== State.Playing,
         })),
       })
     ),
-    allowedMentions: { parse: [] },
   };
 }
 
