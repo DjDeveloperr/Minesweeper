@@ -65,7 +65,7 @@ slash.handle("minesweeper", (d) => {
   return d.reply(GameMessage(game));
 });
 
-slash.handle("Toggle Flag", (d) => {
+slash.handle("Toggle Flag", async (d) => {
   const comps =
     d.targetMessage?.components as unknown as MessageComponentPayload[] ?? [];
   if (
@@ -101,13 +101,17 @@ slash.handle("Toggle Flag", (d) => {
     return e;
   });
 
+  await d.defer(true);
+
   return slash.client.rest.endpoints.editMessage(
     d.targetMessage.channelID,
     d.targetMessage.id,
     {
       components: slash.transformComponent(components),
     },
-  ).catch(() => {});
+  ).then(() => d.editResponse("Toggled flag!")).catch(() =>
+    d.editResponse("Failed to toggle flag!")
+  );
 }, "MESSAGE");
 
 slash.client.on("interaction", async (d) => {
