@@ -84,6 +84,8 @@ slash.handle("Toggle Flag", async (d) => {
     ),
   );
 
+  game.flag = !game.flag;
+
   if (d.user.id !== game.user.toString()) {
     return d.reply("Nope", { ephemeral: true });
   }
@@ -109,30 +111,18 @@ slash.client.on("interaction", async (d) => {
     if (d.isMessageComponent() && d.data.component_type === 2) {
       const game = new Minesweeper(slash.decodeString(d.data.custom_id));
       if (game.user.toString() !== d.user.id) {
-        return d.respond({ type: 7 });
+        return d.respond({ type: 6 });
       }
       const cell = game.data[game.data.length - 1];
-      console.log("click", cell);
       try {
         game.click(cell);
       } catch (e) {
         console.error("game.click error", e);
       }
-      const msg = GameMessage(game);
-      console.log(
-        "clicked",
-        game.data,
-        game.map,
-        game.state,
-        game.revealed,
-        game.flagged,
-        msg.components,
-        msg.content,
-      );
+      
       return d.respond({
-        type: 6,
-        content: msg.content,
-        components: msg.components,
+        type: 7,
+        ...GameMessage(game),
       });
     }
   } catch (e) {
