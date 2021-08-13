@@ -71,18 +71,21 @@ slash.handle("Toggle Flag", (d) => {
     !d.targetMessage || d.targetMessage.author.id !== slash.client.getID() ||
     !d.targetMessage.components[0].components?.[0]?.customID
   ) {
+    console.log("invalid msg");
     return d.reply(
       "You can't do it on this message! " + d.targetMessage?.author.id + ", " +
         slash.client.getID() + ", " + Deno.inspect(d.targetMessage?.components),
       { ephemeral: true },
     );
-  }
+  } else console.log("valid msg");
 
   const game = new Minesweeper(
     slash.decodeString(
       d.targetMessage.components[0].components?.[0]?.customID!,
     ),
   );
+  console.log("valid game", game.data);
+
   if (d.user.id !== game.user.toString()) {
     return d.reply("Nope", { ephemeral: true });
   }
@@ -98,6 +101,8 @@ slash.handle("Toggle Flag", (d) => {
     }
     return e;
   });
+
+  console.log("modified components", components);
 
   return slash.client.rest.endpoints.editMessage(
     d.targetMessage.channelID,
@@ -124,7 +129,7 @@ slash.client.on("interaction", async (d) => {
       } catch (e) {
         console.error("game.click error", e);
       }
-      console.log("clicked");
+      console.log("clicked", game.data, game.map, game.state, game.revealed, game.flagged);
       return d.respond({ type: 6, ...GameMessage(game) });
     }
   } catch (e) {
