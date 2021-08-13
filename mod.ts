@@ -41,13 +41,12 @@ function GameMessage(game: Minesweeper) {
             : game.isRevealed(i)
             ? (e === 9 ? "RED" : "GREY")
             : "BLURPLE",
-          label: game.isFlagged(i) || !game.isRevealed(i) || e === 9 ? "" : e,
+          label: game.isFlagged(i) || !game.isRevealed(i) || (game.isRevealed(i) && e === 9) ? "" : e,
           emoji: e === 9 ? { name: MINE } : game.isFlagged(i)
             ? { name: FLAG }
             : !game.isRevealed(i)
             ? { id: "741616560061415504" }
             : undefined,
-          disabled: game.isRevealed(i),
           customID: slash.encodeToString(new Uint8Array([...game.data, i])),
         })),
       })
