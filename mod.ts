@@ -66,7 +66,8 @@ slash.handle("minesweeper", (d) => {
 });
 
 slash.handle("Toggle Flag", (d) => {
-  const comps = d.targetMessage?.components as unknown as MessageComponentPayload[] ?? [];
+  const comps =
+    d.targetMessage?.components as unknown as MessageComponentPayload[] ?? [];
   if (
     !d.targetMessage || d.targetMessage.author.id !== slash.client.getID() ||
     !comps[0].components?.[0]?.custom_id
@@ -124,8 +125,21 @@ slash.client.on("interaction", async (d) => {
         console.error("game.click error", e);
       }
       const msg = GameMessage(game);
-      console.log("clicked", game.data, game.map, game.state, game.revealed, game.flagged, msg.components, msg.content);
-      return d.respond({ type: 6, content: msg.content, components: msg.components });
+      console.log(
+        "clicked",
+        game.data,
+        game.map,
+        game.state,
+        game.revealed,
+        game.flagged,
+        msg.components,
+        msg.content,
+      );
+      return d.respond({
+        type: 6,
+        content: msg.content,
+        components: msg.components,
+      });
     }
   } catch (e) {
     console.error("Error at interaction event:", e);
