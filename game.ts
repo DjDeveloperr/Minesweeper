@@ -48,19 +48,19 @@ export class Minesweeper {
   }
 
   get #revealed() {
-    return this.#dataView.getUint32(11);
-  }
-
-  set #revealed(value: number) {
-    this.#dataView.setUint32(11, value);
-  }
-
-  get #flagged() {
     return this.#dataView.getUint32(15);
   }
 
-  set #flagged(value: number) {
+  set #revealed(value: number) {
     this.#dataView.setUint32(15, value);
+  }
+
+  get #flagged() {
+    return this.#dataView.getUint32(11);
+  }
+
+  set #flagged(value: number) {
+    this.#dataView.setUint32(11, value);
   }
 
   get size() {
@@ -80,7 +80,7 @@ export class Minesweeper {
   }
 
   get user(): bigint {
-    return this.#dataView.getBigUint64(0);
+    return this.#dataView.getBigInt64(0);
   }
 
   constructor(data: Uint8Array);
@@ -93,16 +93,16 @@ export class Minesweeper {
       const size = sizeOrData;
       this.#data = new Uint8Array(
         8 + // user (snowflake bigint)
-          1 + // state (u8) offset 0
-          1 + // flag enabled (u8) offset 1
-          1 + // size (u8) offset 2
-          4 + // flagged (u32) offset 3
-          4 + // revealed (u32) offset 7
+          1 + // state (u8) offset 8
+          1 + // flag enabled (u8) offset 9
+          1 + // size (u8) offset 10
+          4 + // flagged (u32) offset 11
+          4 + // revealed (u32) offset 15
           (size ** 2), // map (n bytes) offset 11
       );
 
       this.#dataView = new DataView(this.#data.buffer);
-      this.#dataView.setUint32(12, 0);
+      this.#dataView.setBigInt64(0, user!);
       this.#dataView.setUint8(10, size);
     }
 

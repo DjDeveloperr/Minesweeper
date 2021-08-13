@@ -101,14 +101,14 @@ slash.handle("Toggle Flag", (d) => {
 
 slash.client.on("interaction", async (d) => {
   try {
-    if (d.isMessageComponent() && d.componentType === 2) {
-      const game = new Minesweeper(slash.decodeString(d.customID));
+    if (d.isMessageComponent() && d.data.component_type === 2) {
+      const game = new Minesweeper(slash.decodeString(d.data.custom_id));
       if (game.user.toString() !== d.user.id) return d.respond({ type: 7 });
       try {
         game.click(game.data[game.data.length - 1]);
       } catch (e) {}
       return d.respond({ type: 6, ...GameMessage(game) });
-    } else return d.reply("nope " + d.isMessageComponent() + ", " + (d as any).componentType + ", " + Deno.inspect(d.data) + ", " + d.constructor.name, { ephemeral: true });
+    }
   } catch (e) {
     console.error("Error at interaction event:", e);
   }
