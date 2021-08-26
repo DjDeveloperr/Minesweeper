@@ -1,5 +1,5 @@
-export * from "https://code.harmony.rocks/ctx-menu@dj/deploy";
-export { transformComponent } from "https://code.harmony.rocks/ctx-menu@dj/src/utils/components.ts";
+export * from "https://code.harmony.rocks/main/deploy";
+export { transformComponent } from "https://code.harmony.rocks/main/src/utils/components.ts";
 export {
   decode,
   encode,
