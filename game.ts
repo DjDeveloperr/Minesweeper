@@ -140,6 +140,9 @@ export class Minesweeper {
     this.map.forEach((e, i) => {
       if (e === 0) zeroes.push(i);
     });
+    if (zeroes.length < 1) {
+      zeroes.push(this.map.findIndex((e) => e < 9));
+    }
     const rand = zeroes[Math.floor(Math.random() * zeroes.length)];
     this.#revealAdd(rand);
   }
