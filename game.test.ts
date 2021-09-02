@@ -1,5 +1,8 @@
 import { Minesweeper, State } from "./game.ts";
-import { assertEquals, assertNotEquals } from "https://deno.land/std@0.104.0/testing/asserts.ts";
+import {
+  assertEquals,
+  assertNotEquals,
+} from "https://deno.land/std@0.106.0/testing/asserts.ts";
 
 Deno.test("new Minesweeper()", () => {
   const game = new Minesweeper(5, 123n);
@@ -24,7 +27,7 @@ Deno.test("Minesweeper#flag", () => {
 
 Deno.test("Minesweeper#click (non-mine)", () => {
   const game = new Minesweeper(5, 123n);
-  const cell = game.map.findIndex((e) => e < 8);
+  const cell = game.map.findIndex((e, i) => e < 8 && !game.isRevealed(i));
   if (cell === undefined) throw new Error("No cell with value 0 found");
   game.click(cell);
   assertEquals(game.isRevealed(cell), true);
@@ -33,7 +36,7 @@ Deno.test("Minesweeper#click (non-mine)", () => {
 
 Deno.test("Minesweeper#click (mine)", () => {
   const game = new Minesweeper(5, 123n);
-  const cell = game.map.findIndex((e) => e === 9);
+  const cell = game.map.findIndex((e, i) => e === 9 && !game.isRevealed(i));
   if (cell === undefined) throw new Error("No cell with value 9 found");
   game.click(cell);
   assertEquals(game.isRevealed(cell), true);
@@ -45,17 +48,17 @@ Deno.test("Minesweeper#click (flag)", () => {
   const cell = game.map.findIndex((e, i) => !game.isRevealed(i) && e === 9);
 
   game.flag = true;
-  
+
   game.click(cell);
   assertEquals(game.isFlagged(cell), true);
   assertEquals(game.state, State.Playing);
-  
+
   game.click(cell);
   assertEquals(game.isFlagged(cell), false);
   assertEquals(game.state, State.Playing);
-  
+
   game.flag = false;
-  
+
   game.click(cell);
   assertEquals(game.state, State.Lose);
 });
