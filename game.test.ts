@@ -44,11 +44,15 @@ Deno.test("Minesweeper#click (mine)", () => {
 
 Deno.test("Minesweeper#click (flag)", () => {
   const game = new Minesweeper(5, 123n);
-  const cell = [...game.map].findIndex((_, i) => !game.isRevealed(i));
+  const cell = [...game.map].findIndex((e, i) => !game.isRevealed(i) && e === 9);
   game.flag = true;
   game.click(cell);
   assertEquals(game.isFlagged(cell), true);
+  assertEquals(game.state, State.Playing);
   game.click(cell);
   assertEquals(game.isFlagged(cell), false);
   assertEquals(game.state, State.Playing);
+  game.flag = false;
+  game.click(cell);
+  assertEquals(game.state, State.Lose);
 });
