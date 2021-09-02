@@ -1,5 +1,5 @@
 import { Minesweeper, State } from "./game.ts";
-import { assertEquals } from "https://deno.land/std@0.104.0/testing/asserts.ts";
+import { assertEquals, assertNotEquals } from "https://deno.land/std@0.104.0/testing/asserts.ts";
 
 Deno.test("new Minesweeper()", () => {
   const game = new Minesweeper(5, 123n);
@@ -8,6 +8,11 @@ Deno.test("new Minesweeper()", () => {
   assertEquals(game.size, 5);
   assertEquals(game.user, 123n);
   assertEquals(game.flag, false);
+  const firstRevealed = [...game.map]
+    .map((e, i) => ({ e, i }))
+    .filter(({ i }) => game.isRevealed(i))[0].i;
+  assertEquals(game.isRevealed(firstRevealed), true);
+  assertNotEquals(game.map[firstRevealed], 9);
 });
 
 Deno.test("Minesweeper#flag", () => {
