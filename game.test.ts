@@ -24,8 +24,7 @@ Deno.test("Minesweeper#flag", () => {
 
 Deno.test("Minesweeper#click (non-mine)", () => {
   const game = new Minesweeper(5, 123n);
-  const cell = [...game.map].map((e, i) => ({ e, i })).find((e) => e.e < 9)
-    ?.i;
+  const cell = game.map.findIndex((e) => e < 8);
   if (cell === undefined) throw new Error("No cell with value 0 found");
   game.click(cell);
   assertEquals(game.isRevealed(cell), true);
