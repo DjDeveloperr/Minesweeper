@@ -144,8 +144,8 @@ handle("Toggle Flag", async (d) => {
       content,
       components: transformComponent(components),
     },
-  ).then(() => d.editResponse("Toggled flag!")).catch((e) =>
-    d.editResponse(("Failed to toggle flag! " + e).substr(0, 2000))
+  ).then(() => d.editResponse("Toggled flag!")).catch(() =>
+    d.editResponse(("Failed to toggle flag! Make sure I have Send Message permission in this channel."))
   );
 }, "MESSAGE");
 
