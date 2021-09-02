@@ -33,8 +33,7 @@ Deno.test("Minesweeper#click (non-mine)", () => {
 
 Deno.test("Minesweeper#click (mine)", () => {
   const game = new Minesweeper(5, 123n);
-  const cell = [...game.map].map((e, i) => ({ e, i })).find((e) => e.e === 9)
-    ?.i;
+  const cell = game.map.findIndex((e) => e === 9);
   if (cell === undefined) throw new Error("No cell with value 9 found");
   game.click(cell);
   assertEquals(game.isRevealed(cell), true);
@@ -43,15 +42,20 @@ Deno.test("Minesweeper#click (mine)", () => {
 
 Deno.test("Minesweeper#click (flag)", () => {
   const game = new Minesweeper(5, 123n);
-  const cell = [...game.map].findIndex((e, i) => !game.isRevealed(i) && e === 9);
+  const cell = game.map.findIndex((e, i) => !game.isRevealed(i) && e === 9);
+
   game.flag = true;
+  
   game.click(cell);
   assertEquals(game.isFlagged(cell), true);
   assertEquals(game.state, State.Playing);
+  
   game.click(cell);
   assertEquals(game.isFlagged(cell), false);
   assertEquals(game.state, State.Playing);
+  
   game.flag = false;
+  
   game.click(cell);
   assertEquals(game.state, State.Lose);
 });

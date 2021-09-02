@@ -144,7 +144,7 @@ export class Minesweeper {
       zeroes.push(this.map.findIndex((e) => e < 8));
     }
     const rand = zeroes[Math.floor(Math.random() * zeroes.length)];
-    this.#revealAdd(rand);
+    if (rand !== undefined) this.#revealAdd(rand);
   }
 
   #revealAdd(cell: number) {
