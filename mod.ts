@@ -78,15 +78,15 @@ function GameMessage(game: Minesweeper) {
               : game.isRevealed(i)
               ? (e === 9 ? "RED" : "GREY")
               : "BLURPLE",
-            label: game.isFlagged(i) || !game.isRevealed(i) ||
-                (game.isRevealed(i) && e === 9)
+            label: game.isFlagged(i) || (!game.isRevealed(i) && game.state === State.Playing) ||
+                ((game.isRevealed(i) || game.state !== State.Playing) && e === 9)
               ? ""
               : e.toString(),
-            emoji: e === 9 && game.isRevealed(i)
+            emoji: e === 9 && (game.isRevealed(i) || game.state !== State.Playing)
               ? { name: MINE }
               : game.isFlagged(i)
               ? { name: FLAG }
-              : !game.isRevealed(i)
+              : !game.isRevealed(i) && game.state === State.Playing
               ? { id: "741616560061415504" }
               : undefined,
             customID: encodeToString(
