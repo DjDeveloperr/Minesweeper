@@ -30,7 +30,9 @@ const commands: SlashCommandPartial[] = [
 ];
 
 const MINE = "💣";
+const BOOM = "💥";
 const FLAG = "🚩";
+const EMPTY = "741616560061415504";
 
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
@@ -82,12 +84,14 @@ function GameMessage(game: Minesweeper) {
                 ((game.isRevealed(i) || game.state !== State.Playing) && e === 9)
               ? ""
               : e.toString(),
-            emoji: e === 9 && (game.isRevealed(i) || game.state !== State.Playing)
+            emoji: e === 9 && game.isRevealed(i)
+              ? { name: BOOM }
+              : e === 9 && game.state !== State.Playing
               ? { name: MINE }
               : game.isFlagged(i)
               ? { name: FLAG }
               : !game.isRevealed(i) && game.state === State.Playing
-              ? { id: "741616560061415504" }
+              ? { id: EMPTY }
               : undefined,
             customID: encodeToString(
               new Uint8Array([...game.data.slice(0, game.byteLength), i]),
