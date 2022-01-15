@@ -1,5 +1,5 @@
-export * from "https://code.harmony.rocks/v2.1.1/deploy";
-export { transformComponent } from "https://code.harmony.rocks/v2.1.1/src/utils/components.ts";
+export * from "https://code.harmony.rocks/v2.5.0/deploy";
+export { transformComponent } from "https://code.harmony.rocks/v2.5.0/src/utils/components.ts";
 export {
   decode,
   encode,
