@@ -137,7 +137,7 @@ handle("Toggle Flag", async (d) => {
     return d.reply("Nope", { ephemeral: true });
   }
 
-  await d.defer();
+  await d.defer(true);
 
   const { content, components } = GameMessage(game);
 
