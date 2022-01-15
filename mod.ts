@@ -137,7 +137,7 @@ handle("Toggle Flag", async (d) => {
     return d.reply("Nope", { ephemeral: true });
   }
 
-  await d.defer(true);
+  await d.respond({ type: 6 });
 
   const { content, components } = GameMessage(game);
 
@@ -148,8 +148,9 @@ handle("Toggle Flag", async (d) => {
       content,
       components: transformComponent(components),
     },
-  ).then(() => d.editResponse("Toggled flag!")).catch(() =>
-    d.editResponse(("Failed to toggle flag! Make sure I have Send Message permission in this channel."))
+  )/*.then(() => d.editResponse("Toggled flag!"))*/.catch(() =>
+    // Do nothing for now.
+    {} // d.editResponse(("Failed to toggle flag! Make sure I have Send Message permission in this channel."))
   );
 }, "MESSAGE");
 
