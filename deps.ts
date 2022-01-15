@@ -3,4 +3,4 @@ export { transformComponent } from "https://code.harmony.rocks/v2.1.1/src/utils/
 export {
   decode,
   encode,
-} from "https://deno.land/std@0.106.0/encoding/hex.ts";
+} from "https://deno.land/std@0.121.0/encoding/hex.ts";
