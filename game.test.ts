@@ -2,7 +2,7 @@ import { Minesweeper, State } from "./game.ts";
 import {
   assertEquals,
   assertNotEquals,
-} from "https://deno.land/std@0.106.0/testing/asserts.ts";
+} from "https://deno.land/std@0.121.0/testing/asserts.ts";
 
 Deno.test("new Minesweeper()", () => {
   const game = new Minesweeper(5, 123n);
