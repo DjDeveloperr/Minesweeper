@@ -30,4 +30,4 @@ message using `PATCH /channels/:id/messages/:id` endpoint.
 
 [MIT Licensed](./LICENSE)
 
-Copyright 2021 (c) DjDeveloperr
+Copyright 2022 © DjDeveloperr
