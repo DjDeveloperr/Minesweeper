@@ -174,6 +174,7 @@ client.on("interaction", async (d) => {
     }
   } catch (e) {
     console.error("Error at interaction event:", e);
+    d.reply(e.message, { ephemeral: true }).catch(()=>{});
   }
 });
 
